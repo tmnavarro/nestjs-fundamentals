@@ -6,7 +6,10 @@ import { User } from './entities/user.entity';
 export class UsersService {
   private users: any = [{ id: 1, name: 'User 1' }];
 
-  findAll(): User[] {
+  findAll(name?: string): User[] {
+    if (name) {
+      return this.users.filter((user) => user.name === name);
+    }
     return this.users;
   }
 
