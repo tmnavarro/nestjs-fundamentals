@@ -49,6 +49,7 @@ export class UsersController {
     description: 'Return created user.',
   })
   @Post()
+  @ApiBadRequestResponse()
   createUser(@Body() body: CreateUserDto): User {
     return this.userService.create(body);
   }
