@@ -11,4 +11,12 @@ export class CreateUserDto {
   })
   @IsOptional()
   age?: number;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  email: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  password: string;
 }

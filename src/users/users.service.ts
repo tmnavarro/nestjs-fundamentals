@@ -4,7 +4,9 @@ import { User } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
-  private users: any = [{ id: 1, name: 'User 1' }];
+  private users: User[] = [
+    { id: 1, name: 'User 1', email: 'user@server.com', password: 'userPass' },
+  ];
 
   findAll(name?: string): User[] {
     if (name) {
@@ -15,6 +17,10 @@ export class UsersService {
 
   findById(userId: number): User {
     return this.users.find((user) => user.id === userId);
+  }
+
+  findByEmail(email: string): User {
+    return this.users.find((user) => user.email === email);
   }
 
   create(createUserData: CreateUserDto): User {
