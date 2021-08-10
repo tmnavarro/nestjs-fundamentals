@@ -1,33 +1,33 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { User } from './entities/user.entity';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { RegisterDto } from 'src/auth/dto/register.dto';
+import { User, UserDocument } from './schemas/user.schema';
 
 @Injectable()
 export class UsersService {
-  private users: User[] = [
-    { id: 1, name: 'User 1', email: 'user@server.com', password: 'userPass' },
-  ];
+  constructor(
+    @InjectModel(User.name)
+    private userModel: Model<UserDocument>,
+  ) {}
 
-  findAll(name?: string): User[] {
-    if (name) {
-      return this.users.filter((user) => user.name === name);
-    }
-    return this.users;
+  async create(createUserData: RegisterDto): Promise<Partial<User>> {
+    return this.userModel.create(createUserData);
   }
 
-  findById(userId: number): User {
-    return this.users.find((user) => user.id === userId);
+  async findById(userId: string): Promise<User> {
+    return this.userModel.findOne({ _id: userId });
   }
 
-  findByEmail(email: string): User {
-    return this.users.find((user) => user.email === email);
+  async findByLogin(email: string): Promise<Partial<User>> {
+    return this.userModel.findOne({ email }, ['_id', 'password']);
   }
 
-  create(createUserData: CreateUserDto): User {
-    const newUser = { id: Date.now(), ...createUserData };
+  async findByEmail(email: string): Promise<User> {
+    return this.userModel.findOne({ email });
+  }
 
-    this.users.push(newUser);
-
-    return newUser;
+  async findAll(): Promise<User[]> {
+    return this.userModel.find({});
   }
 }

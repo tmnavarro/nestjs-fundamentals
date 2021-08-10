@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -7,17 +8,22 @@ import {
   ParseIntPipe,
   Post,
   Query,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { CreateUserDto } from './dto/create-user.dto';
-import { User } from './entities/user.entity';
+import { RegisterDto } from 'src/auth/dto/register.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { User } from './schemas/user.schema';
 import { UsersService } from './users.service';
 
 @ApiTags('Users')
@@ -26,18 +32,19 @@ export class UsersController {
   constructor(private userService: UsersService) {}
 
   @ApiOkResponse({ type: User, isArray: true })
-  @ApiQuery({ name: 'name', required: false })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
   @Get()
-  getUsers(@Query('name') name?: string): User[] {
-    return this.userService.findAll(name);
+  getUsers(@Request() req): Promise<User[]> {
+    console.log(req.user);
+    return this.userService.findAll();
   }
 
   @ApiOkResponse({ type: User })
   @ApiNotFoundResponse()
   @Get(':id')
-  getUserById(@Param('id', ParseIntPipe) id: number): User {
-    const user = this.userService.findById(id);
-
+  async getUserById(@Param('id') id: string): Promise<User> {
+    const user = await this.userService.findById(id);
     if (!user) {
       throw new NotFoundException('User not Found');
     }
@@ -50,7 +57,14 @@ export class UsersController {
   })
   @ApiBadRequestResponse()
   @Post()
-  createUser(@Body() body: CreateUserDto): User {
-    return this.userService.create(body);
+  async createUser(
+    @Body() createUserData: RegisterDto,
+  ): Promise<Partial<User>> {
+    const user = await this.userService.findByEmail(createUserData.email);
+
+    if (user) {
+      throw new BadRequestException('User already exist.');
+    }
+    return this.userService.create(createUserData);
   }
 }
