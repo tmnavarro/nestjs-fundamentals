@@ -10,7 +10,7 @@ async function bootstrap() {
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Nest API Fundamentals')
-    .setDescription('Example funtamentals features Nestjs')
+    .setDescription('Example funtamentals features Nestjs, /doc-json')
     .setVersion('1.0')
     .addBearerAuth()
     .build();

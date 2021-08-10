@@ -5,13 +5,10 @@ import {
   Get,
   NotFoundException,
   Param,
-  ParseIntPipe,
   Post,
-  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -33,7 +30,7 @@ export class UsersController {
 
   @ApiOkResponse({ type: User, isArray: true })
   @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
   @Get()
   getUsers(@Request() req): Promise<User[]> {
     console.log(req.user);
